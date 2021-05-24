@@ -1,10 +1,22 @@
 const fs = require('fs');
 const parseObjectByMask = require('./utils/parse-object-by-mask.js').parseObjectByMask;
+const readProdInfoFile = require('./read-prod-info-file.js').readProdInfoFile;
 
 const readSettings = (MAIN_DIR, logger, next) => {
     let baseSettings = null;
+    let prodInfo = readProdInfoFile();
+    let pathRootSettings = '/app/root-settings.json';
+
+    let softwareRevision = 1;
+    let tempSoftwareRevision = NaN;
+    let validPROD_INFO = typeof prodInfo === 'object' && prodInfo !== null;
+    let validSoftwareRevision = validPROD_INFO && prodInfo.Software_revision;
+    if(validSoftwareRevision) tempSoftwareRevision = parseInt(prodInfo.Software_revision);
+    if(!isNaN(tempSoftwareRevision)) softwareRevision = tempSoftwareRevision;
+    if ( softwareRevision >= 2 ) pathRootSettings = '/app/02-root-settings.json';
+
     try {
-        const baseSettingsText = fs.readFileSync(MAIN_DIR + '/app/root-settings.json', 'utf8');
+        const baseSettingsText = fs.readFileSync(MAIN_DIR + pathRootSettings, 'utf8');
         baseSettings = JSON.parse(baseSettingsText);
         logger.verbose('root-settings file was read successfully');
     } catch (e) {
