@@ -1,0 +1,29 @@
+{
+    "description": "SERVER_STARTUP_METHOD = 'button'(recomended, default) || 'automatically'",
+	"SERVER_STARTUP_METHOD": "button",
+	"isRebooting": false,
+	"loggerLevel": "info",
+	"maxLevelForConsoleLogger": "verbose",
+	"UPDATE": {
+		"TIME_INTERVAL_IN_MINUTES": 1440
+	},
+    "BS_DASHBOARD":
+    {
+        "DIR": "/home/root/bs-dashboard/dashboard",
+        "FILE": "dashboard-version.json",
+        "TEMP": "dashboard-temp",
+        "GIT_NAME": "VegaAbsolute",
+        "GIT_REPO": "bs-dashboard",
+        "GIT_PROVIDER": "GIT_HUB",
+        "GIT_DOMAIN": "github.com"
+    },
+    "BS_DASHBOARD_MANAGER":
+    {
+        "FILE": "manager-version.json",
+        "TEMP": "manager-temp",
+        "GIT_NAME": "VegaAbsolute",
+        "GIT_REPO": "bs-dashboard-manager",
+        "GIT_PROVIDER": "GIT_HUB",
+        "GIT_DOMAIN": "github.com"
+    }
+}
