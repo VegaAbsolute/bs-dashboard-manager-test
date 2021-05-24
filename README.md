@@ -1,0 +1,1 @@
+bs-dashboard-manager
