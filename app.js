@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const startServerProcess = require('./src/start-server-process.js').startServerProcess;
-const buttonObserver = require('./src/button-observer.js').buttonObserver;
 const readSettings = require('./src/read-settings.js').readSettings;
 const editSettings = require('./src/utils/edit-settings.js').editSettings;
 const express = require('express');
@@ -12,14 +11,16 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const http = require('http');
 
+const PATH_TO_BUTTON_VALUE_FILE = '/sys/class/gpio/gpio26/value';
 const MAIN_DIR = path.join(__dirname, '..');
 const DASHBOARD_ROOT_DIR = path.join(__dirname, '..', '..');
 const initLogger = require('./src/utils/logger.js').logger(MAIN_DIR);
 let logger = {};
 let SETTINGS = {};
 let timerId = undefined;
-
+let child = undefined;
 const HTTP_PORT = 8088;
+
 initLogger.warn('Run BS-Dashboard-Manager.');
 const userAuthentication = (data) => {
     const usersJson = fs.readFileSync(DASHBOARD_ROOT_DIR + '/users-config.json', 'utf8');
@@ -93,7 +94,6 @@ try {
             if (SETTINGS.isRebooting) {
                 logger.debug('SETTINGS.isRebooting === true');
                 editSettings(MAIN_DIR, 'isRebooting', false);
-
                 startServerProcess(SETTINGS)(logger);
             } else {
                 logger.debug('SETTINGS.isRebooting !== true');
@@ -105,7 +105,22 @@ try {
                     }
                     default: {
                         logger.debug('switch SERVER_STARTUP_METHOD = "button"');
-                        timerId = buttonObserver(logger, ()=>startServerProcess(SETTINGS)(logger));
+                        logger.info('Waiting for button press...');
+                        timerId = setInterval(() => {
+                            let buttonValue = '1';
+                            try {
+                                buttonValue = fs.readFileSync(PATH_TO_BUTTON_VALUE_FILE).toString().substr(0, 1);
+                            } catch (e) {
+                                logger.debug('fs.readFileSync throw exception, path = ' + PATH_TO_BUTTON_VALUE_FILE);
+                                buttonValue = '1';
+                            }
+                            logger.silly('buttonValue = ' + buttonValue);
+                            if (buttonValue === '0') {
+                                logger.verbose('Button is pressed.');
+                                startServerProcess(SETTINGS)(logger);
+                                clearInterval(timerId);
+                            }
+                        }, 5000);
                     }
                 }
             }

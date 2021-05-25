@@ -9,8 +9,10 @@ const readVersion = require('./updater/version-file-actions').readVersion;
 const updater = require('./updater/updater').updater;
 
 let isUpdateProcess = false;
+let child = undefined;
 
 const startServerProcess = (SETTINGS) => (logger) => {
+    if ( child && typeof child === 'object' && !child.killed ) return;
     /*
      *  Prepare data and run dashboard process
      */
@@ -29,8 +31,6 @@ const startServerProcess = (SETTINGS) => (logger) => {
 
 
     const dashboardProcess = (SETTINGS, currentManagerVersion, currentDashboardVersion) => {
-
-
         /*
          *  Run bs-dashboard
          */
